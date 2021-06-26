@@ -18,7 +18,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#FFF',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
   lefAvatar: {
@@ -27,7 +26,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flexDirection: 'column',
-    justifyContent: 'flex-start',
   },
   trailing: {},
 });

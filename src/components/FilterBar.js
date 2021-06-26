@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   button: {
-    color: 'grey',
+    backgroundColor: '#DEDEDE',
     borderRadius: 5,
     borderWidth: 0.5,
     padding: 5,

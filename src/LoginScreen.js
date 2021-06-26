@@ -26,6 +26,7 @@ const LoginScreen = props => {
   const [password, setPassword] = useState(null);
 
   const isLoading = useSelector(state => state.auth.isLoading);
+  const message = useSelector(state => state.auth.message);
 
   const onLogin = () => {
     dispatch(authAction(username, password));
@@ -45,6 +46,9 @@ const LoginScreen = props => {
           style={styles.logo}
         />
       </View>
+      <Text>username: user</Text>
+      <Text>password: pass</Text>
+      <View style={styles.smallSpacer} />
       <TextInput
         style={styles.input}
         value={username}
@@ -62,6 +66,7 @@ const LoginScreen = props => {
         secureTextEntry
       />
       <View style={styles.smallSpacer} />
+      <Text>{message}</Text>
       <TouchableOpacity style={styles.button} onPress={onLogin}>
         {isLoading ? (
           <ActivityIndicator color={'#FFFFF'} />

@@ -8,6 +8,8 @@ import {
   FlatList,
   Image,
   Dimensions,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import FilterBar from './components/FilterBar';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -18,6 +20,8 @@ const { width, height } = Dimensions.get('screen');
 const JobsScreen = props => {
   ///search jobs
   const [search, setSearch] = useState('');
+
+  const [page, setPage] = useState(1);
 
   ///filter location
   const [location, setLocation] = useState('');
@@ -30,10 +34,12 @@ const JobsScreen = props => {
 
   const [data, setData] = useState([]);
 
+  const [refresh, setRefresh] = useState(false);
+
   ///fetch jobs from api
   const fetchJobs = () => {
-    var url = `http://dev3.dansmultipro.co.id/api/recruitment/positions.json?desciption=${search}&location=${location}&fulltime=${isFullTime}`;
-    console.log(`BASE URL :${url}`);
+    var url = `http://dev3.dansmultipro.co.id/api/recruitment/positions.json?desciption=${search}&location=${location}&fulltime=${isFullTime}&page=${page}`;
+    console.log(`IMUNNN :${url}`);
     fetch(url, {
       method: 'GET',
       headers: {
@@ -42,11 +48,17 @@ const JobsScreen = props => {
     })
       .then(response => response.json())
       .then(json => {
+        setRefresh(false);
         setData(json);
       })
       .catch(err => {
         console.log(err);
+        setRefresh(false);
       });
+  };
+
+  const onLoadMore = () => {
+    setPage(page + 1);
   };
 
   useEffect(() => {
@@ -54,15 +66,21 @@ const JobsScreen = props => {
   }, [search]);
 
   useEffect(() => {
-    console.log(search);
-  }, [search]);
+    fetchJobs();
+  }, [page, isFullTime]);
 
   const toggleFilter = () => {
     setIsFilter(!isFilter);
   };
 
   const onApplyFilter = () => {
+    setRefresh(true);
     toggleFilter();
+    fetchJobs();
+  };
+
+  const onRefresh = () => {
+    setRefresh(true);
     fetchJobs();
   };
 
@@ -102,6 +120,14 @@ const JobsScreen = props => {
     );
   };
 
+  const renderFooter = () => {
+    return (
+      <View>
+        <ActivityIndicator color={'black'} />
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={{ ...styles.rowHeader }}>
@@ -111,9 +137,8 @@ const JobsScreen = props => {
           value={search}
           containerStyle={styles.searchContainer}
           inputContainerStyle={styles.searchBarContainer}
-          inputStyle={{}}
         />
-        <TouchableOpacity style={{ padding: 5 }} onPress={toggleFilter}>
+        <TouchableOpacity style={{}} onPress={toggleFilter}>
           <MaterialIcons name={'keyboard-arrow-down'} size={20} color="#000" />
         </TouchableOpacity>
       </View>
@@ -126,14 +151,23 @@ const JobsScreen = props => {
           onChangeFullTime={setIsFullTime}
         />
       )}
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        scrollEnabled={true}
-        style={{ flexGrow: 1 }}
-        ListEmptyComponent={emptyPlaceHolder}
-      />
+      {refresh ? (
+        <ActivityIndicator color={'black'} />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refresh} />
+          }
+          keyExtractor={item => item?.id}
+          scrollEnabled={true}
+          ListEmptyComponent={emptyPlaceHolder}
+          onEndReachedThreshold={0}
+          onEndReached={onLoadMore}
+          ListFooterComponent={renderFooter}
+        />
+      )}
     </View>
   );
 };
@@ -147,6 +181,12 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     backgroundColor: '#FFFF',
+    borderWidth: 1,
+    borderColor: 'black',
+    padding: 0,
+    borderRadius: 50,
+    height: 40,
+    borderBottomWidth: 1,
   },
   searchContainer: {
     flex: 1,
@@ -198,32 +238,3 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
 });
-
-const DATA = [
-  {
-    id: '32bf67e5-4971-47ce-985c-44b6b3860cdb',
-    type: 'Full Time',
-    url: 'https://jobs.github.com/positions/32bf67e5-4971-47ce-985c-44b6b3860cdb',
-    created_at: 'Wed May 19 00:49:17 UTC 2021',
-    company: 'SweetRush',
-    company_url: 'https://www.sweetrush.com/',
-    location: 'Remote',
-    title: 'Senior Creative Front End Web Developer',
-    description: 'description',
-    company_logo:
-      'https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUtqIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--82886ff47e94ff4c0255b95773a9667644768b2b/SR%20Logo.png',
-  },
-  {
-    id: '32bf67e5-4971-47ce-985c-44b6b3860sdf',
-    type: 'Full Time',
-    url: 'https://jobs.github.com/positions/32bf67e5-4971-47ce-985c-44b6b3860cdb',
-    created_at: 'Wed May 19 00:49:17 UTC 2021',
-    company: 'SweetRush',
-    company_url: 'https://www.sweetrush.com/',
-    location: 'Remote',
-    title: 'Senior Creative Front End Web Developer',
-    description: 'description',
-    company_logo:
-      'https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUtqIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--82886ff47e94ff4c0255b95773a9667644768b2b/SR%20Logo.png',
-  },
-];

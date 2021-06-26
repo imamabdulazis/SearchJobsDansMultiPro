@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Button } from 'react-native';
 import JobsScreen from './JobsScreen';
 import JobsDetail from './JobsDetail';
 import LoginScreen from './LoginScreen';
@@ -9,7 +10,7 @@ import { connect } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { checkAuth } from './redux/actions/auth_action';
+import { checkAuth, logout } from './redux/actions/auth_action';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,10 @@ function MainNavigation() {
     dispatch(checkAuth());
   }, []);
 
+  const onLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -35,6 +40,9 @@ function MainNavigation() {
               component={JobsScreen}
               options={{
                 title: 'Jobs List',
+                headerRight: () => (
+                  <Button onPress={onLogout} title="Logout" color={'red'} />
+                ),
               }}
             />
             <Stack.Screen

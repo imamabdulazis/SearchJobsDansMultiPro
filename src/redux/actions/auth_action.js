@@ -22,3 +22,10 @@ export const checkAuth = () => {
     }
   };
 };
+
+export const logout = () => {
+  return async function (dispatch) {
+    await AsyncStorage.clear();
+    dispatch({ type: 'LOGOUT_REQUEST' });
+  };
+};

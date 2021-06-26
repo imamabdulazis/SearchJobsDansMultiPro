@@ -7,13 +7,17 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  Linking,
+  ActivityIndicator,
 } from 'react-native';
+import HtmlView from 'react-native-htmlview';
 
 const { width, height } = Dimensions.get('screen');
 
 const JobsDetail = ({ route, navigation }) => {
   const { id } = route.params;
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const fetchJobsDetail = () => {
     var url = `http://dev3.dansmultipro.co.id/api/recruitment/positions/${id}`;
@@ -27,9 +31,11 @@ const JobsDetail = ({ route, navigation }) => {
       .then(response => response.json())
       .then(json => {
         setData(json);
+        setLoading(false);
       })
       .catch(err => {
         console.log(err);
+        setLoading(false);
       });
   };
 
@@ -39,31 +45,48 @@ const JobsDetail = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View>
-          <Text style={styles.title}>Company</Text>
-          <View style={styles.spacerSmall} />
-          <View style={styles.headerCard}>
-            <Image source={{ uri: data.avatar }} style={styles.companyLogo} />
-            <View style={styles.contentHeader}>
-              <Text style={styles.title}>{data.title}</Text>
-              <Text style={styles.jobs}>{data.title}</Text>
-              <Text style={styles.url}>{data.url}</Text>
+      {loading ? (
+        <View style={styles.loader}>
+          <ActivityIndicator color={'black'} />
+        </View>
+      ) : (
+        <ScrollView>
+          <View>
+            <Text style={styles.title}>Company</Text>
+            <View style={styles.spacerSmall} />
+            <View style={styles.headerCard}>
+              <Image
+                source={{ uri: data.company_logo }}
+                style={styles.companyLogo}
+              />
+              <View style={styles.contentHeader}>
+                <Text style={styles.title}>{data.company}</Text>
+                <Text style={styles.jobs}>{data.location}</Text>
+                <Text
+                  numberOfLines={1}
+                  style={styles.url}
+                  onPress={() => Linking.openURL(data.url)}
+                >
+                  Go to Website
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
-        <View style={styles.spacer} />
-        <Text style={styles.title}>Job Specification</Text>
-        <View style={styles.spacerSmall} />
-        <View style={styles.contentCard}>
-          <Text style={styles.titleSpesification}>Title</Text>
-          <Text>{data.jobsTitle}</Text>
-          <Text style={styles.titleSpesification}>Fulltime</Text>
-          <Text>{data.type === 'Full Time' ? 'Yes' : 'No'}</Text>
-          <Text style={styles.titleSpesification}>Description</Text>
-          <Text>{data.description}</Text>
-        </View>
-      </ScrollView>
+          <View style={styles.spacer} />
+          <Text style={styles.title}>Job Specification</Text>
+          <View style={styles.spacerSmall} />
+          <View style={styles.contentCard}>
+            <Text style={styles.titleSpesification}>Title</Text>
+            <Text>{data.title}</Text>
+            <View style={styles.spacerSmall} />
+            <Text style={styles.titleSpesification}>Fulltime</Text>
+            <Text>{data.type === 'Full Time' ? 'Yes' : 'No'}</Text>
+            <View style={styles.spacerSmall} />
+            <Text style={styles.titleSpesification}>Description</Text>
+            <HtmlView value={data.description} />
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -75,6 +98,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFF',
     padding: 15,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   spacer: {
     margin: 10,
@@ -104,6 +132,8 @@ const styles = StyleSheet.create({
   url: {
     fontSize: 12,
     fontWeight: '700',
+    color: 'blue',
+    textDecorationLine: 'underline',
   },
   headerCard: {
     borderRadius: 10,
@@ -111,6 +141,7 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 10,
   },
   contentHeader: {
     marginHorizontal: 20,
@@ -118,6 +149,7 @@ const styles = StyleSheet.create({
     width: width / 1.5,
   },
   contentCard: {
+    padding: 10,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#000',

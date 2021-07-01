@@ -39,7 +39,7 @@ const JobsScreen = props => {
   ///fetch jobs from api
   const fetchJobs = () => {
     var url = `http://dev3.dansmultipro.co.id/api/recruitment/positions.json?desciption=${search}&location=${location}&fulltime=${isFullTime}&page=${page}`;
-    console.log(`IMUNNN :${url}`);
+    console.log(`URL :${url}`);
     fetch(url, {
       method: 'GET',
       headers: {
@@ -47,9 +47,15 @@ const JobsScreen = props => {
       },
     })
       .then(response => response.json())
-      .then(json => {
+      .then(res => {
         setRefresh(false);
-        setData(json);
+        if (res !== undefined) {
+          console.log(res);
+          let value = res.filter(function (el) {
+            return el != null;
+          });
+          setData(value);
+        }
       })
       .catch(err => {
         console.log(err);
@@ -67,7 +73,7 @@ const JobsScreen = props => {
 
   useEffect(() => {
     fetchJobs();
-  }, [page, isFullTime]);
+  }, [page]);
 
   const toggleFilter = () => {
     setIsFilter(!isFilter);
@@ -95,20 +101,21 @@ const JobsScreen = props => {
       <Image
         style={styles.avatar}
         source={{
-          uri: item.company_logo,
+          uri: item != null ? item.company_logo : '',
         }}
       />
       <View style={styles.content}>
         <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>
-          {item.title}
+          {item != null ? item.title : ''}
         </Text>
         <Text numberOfLines={1} style={styles.jobs}>
-          {item.company}
+          {item != null ? item.company : ''}
         </Text>
         <Text numberOfLines={1} style={styles.location}>
-          {item.location}
+          {item != null ? item.location : ''}
         </Text>
       </View>
+      <MaterialIcons name={'arrow-forward-ios'} size={20} />
     </TouchableOpacity>
   );
 
@@ -206,6 +213,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#FFF',
     borderWidth: 1,
